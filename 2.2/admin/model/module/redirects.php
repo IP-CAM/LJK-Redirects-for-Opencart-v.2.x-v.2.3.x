@@ -15,6 +15,9 @@ class ModelModuleRedirects extends Model {
     }
 
     public function saveRedirect($data) {
-        $this->db->query("INSERT INTO " . DB_PREFIX . "url_redirect (old_url, new_url) VALUES ('" . $this->db->escape($data['old_url']) . "', '" . $this->db->escape($data['new_url']) ."')");
+
+        $query = "INSERT INTO " . DB_PREFIX . "url_redirect (old_url, new_url) VALUES ('" . $this->db->escape($data['old_url']) . "', '" . $this->db->escape($data['new_url']) . "') ON DUPLICATE KEY UPDATE old_url = '". $this->db->escape($data['old_url']) . "', new_url = '" . $this->db->escape($data['new_url']) . "'" ;
+        $this->db->query($query);
+
     }
 }
