@@ -29,7 +29,7 @@
         <table id="redirect-list" class="table table-striped table-bordered table-hover">
             <thead>
             <tr>
-              <th class="text-left required"><?php echo $old_url; ?></th>
+              <th class="text-left"><?php echo $old_url; ?></th>
               <th class="text-left"><?php echo $new_url; ?></th>
               <th></th>
             </tr>
@@ -39,11 +39,11 @@
                    foreach ($redirects as $redirect) { ?>
             <tr id="redirect-row-<?php echo $redirect_row; ?>">
               <td class="text-left">
-                <input type="text" name="redirect[<?php echo $redirect_row; ?>][old_url]" value="<?php echo $redirect['old_url']; ?>" class="form-control" placeholder="old-url">
+                <input type="text" maxlength="255" name="redirect[<?php echo $redirect_row; ?>][old_url]" value="<?php echo $redirect['old_url']; ?>" class="validate-url form-control" placeholder="old-url">
               <td class="text-left">
-                <input type="text" name="redirect[<?php echo $redirect_row; ?>][new_url]" value="<?php echo $redirect['new_url']; ?>" class="form-control" placeholder="new-url">
+                <input type="text" maxlength="255" name="redirect[<?php echo $redirect_row; ?>][new_url]" value="<?php echo $redirect['new_url']; ?>" class="validate-url form-control" placeholder="new-url">
               </td>
-              <td class="text-right"><button type="button" onclick="$('#redirect-row-<?php echo $redirect_row; ?>').remove();" data-toggle="tooltip" title="" class="btn btn-danger"><i class="fa fa-minus-circle"></i></button></td>
+              <td class="text-right"><button type="button" onclick="$('#redirect-row-<?php echo $redirect_row; ?>').remove();" data-toggle="tooltip" title="Delete Row" class="btn btn-danger"><i class="fa fa-minus-circle"></i></button></td>
             </tr>
             <?php $redirect_row++;
                    } ?>
@@ -51,7 +51,7 @@
             <tfoot>
             <tr>
               <td colspan="100%" class="text-right">
-                  <button type="button" onclick="addRedirect();" data-toggle="tooltip" title="<?php echo $button_option_value_add; ?>" class="btn btn-primary">
+                  <button type="button" onclick="addRedirect();" data-toggle="tooltip" title="Add row" class="btn btn-primary">
                   <i class="fa fa-plus-circle"></i></button>
               </td>
             </tr>
@@ -75,10 +75,10 @@ function addRedirect() {
 
   html  = '<tr id="redirect-row-' + redirect_row + '">';
   html += '    <td class="text-right">';
-  html += '        <input type="text" name="redirect[' + redirect_row + '][old_url]" value="" class="form-control" placeholder="old-url">';
+  html += '        <input maxlength="255" type="text" name="redirect[' + redirect_row + '][old_url]" value="" class="validate-url form-control" placeholder="old-url">';
   html += '    </td>';
   html += '    <td class="text-left">'
-  html += '        <input type="text" name="redirect[' + redirect_row + '][new_url]" value="" class="form-control" placeholder="new-url">';
+  html += '        <input maxlength="255" type="text" name="redirect[' + redirect_row + '][new_url]" value="" class="validate-url form-control" placeholder="new-url">';
   html += '    </td>';
   html += '    <td class="text-right">';
   html += '        <button type="button" onclick="$(\'#redirect-row-' + redirect_row + '\').remove();" data-toggle="tooltip" title="" class="btn btn-danger"><i class="fa fa-minus-circle"></i></button>';
@@ -91,3 +91,29 @@ redirect_row++;
 }
 //--></script>
 <?php echo $footer; ?>
+
+<script type="text/javascript">
+
+//validate fields - disallow spaces
+$('#redirect-list').on('keypress', '.validate-url', function( e ) {
+    if(e.which === 32) {
+        return false;
+    };
+});
+
+//Limit text length if maxlength is set on textarea
+$("input[maxlength]").bind("keyup input paste", function() {
+      var limit = parseInt($(this).attr('maxlength'));
+      var text = $(this).val();
+      var chars = text.length;
+      var charsRemaining = limit - chars;
+      if (charsRemaining === 0) {
+        alert("URL Character Limit of 255 Chars Exceeded")
+      }
+
+      if(chars > limit){
+          var new_text = text.substr(0, limit);
+          $(this).val(new_text);
+      }
+  });
+  </script>
