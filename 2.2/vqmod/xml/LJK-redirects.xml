@@ -75,7 +75,7 @@
 
     <file name="admin/view/template/common/menu.tpl">
         <operation info="Add new menu item to admin menu">
-            <search position="before"><![CDATA[<li><a href="<?php echo $product; ?>"><?php echo $text_product; ?></a></li>]]></search>
+            <search position="after"><![CDATA[<?php echo $text_information; ?>]]></search>
             <add><![CDATA[
                 <li><a href="<?php echo $redirects; ?>"><?php echo $text_redirects; ?></a></li>
                 ]]></add>
