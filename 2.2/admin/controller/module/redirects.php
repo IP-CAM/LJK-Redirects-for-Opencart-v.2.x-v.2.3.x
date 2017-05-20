@@ -69,6 +69,13 @@ class ControllerModuleRedirects extends Controller {
 	}
 
     public function saveRedirects() {
+        // if page is accessed without posted redirects in the $_POST array, return to the redirects page
+        // TODO: post a feedback message that no changes were made
+        if(!isset($_POST['redirect'])) {
+            $this->response->redirect($this->url->link('module/redirects', 'token=' . $this->session->data['token'], true));
+            exit();
+        }
+
         $redirects = $_POST['redirect'];
 
         // first make sure that each entry will pass validation
@@ -78,7 +85,8 @@ class ControllerModuleRedirects extends Controller {
             if(!$data['old_url'] || !$data['new_url']){
                 // failed the validation rules!
                 // do not proceed with script, because old entries would be deleted
-                // TODO: retain bad entries when we return to the home page
+                // TODO: retain bad entries when we return to the home page and notify user of this
+                // NOTE: most validation is done in the front end currently.
                 $this->response->redirect($this->url->link('module/redirects', 'token=' . $this->session->data['token'], true));
                 exit();
             }
@@ -100,14 +108,14 @@ class ControllerModuleRedirects extends Controller {
     }
 
     private function validateURL($data){
-        // 1. strip whitespace from left and right
-        // 2. strip leading and trailing slashes
-        // 3. check for illegal characters
+        // NOTE: most validation is done in the front end currently
+        // 1. strip leading and trailing slashes
+        // 2. check for illegal characters
 
         if(strlen($data) > 255) {
             return false;
         }
-        $result = $data;
+        $result = trim($data);
         return $result;
     }
 
