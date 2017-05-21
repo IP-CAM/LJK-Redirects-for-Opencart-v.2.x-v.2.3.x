@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+    <id>LJK Redirector</id>
+    <version>1.0</version>
+    <vqmver>2.6</vqmver>
+    <author>Lucas Krupinski - lucasjkr@me.com</author>
+    <comment>
+    	Requires Opencart 2.3, VQMOD and SEO URL's enabled.
+    	    
+        This mod includes the following files:
+
+        /admin/controller/extension/module/redirects.php
+        /admin/language/en-gb/extension/module/redirects.php
+        /admin/model/extension/seo/redirects.php
+        /admin/view/template/extension/module/redirects.tpl
+        /vqmod/xml/LJK-redirects.xml
+
+        User must add permission to access the module in Admin -> Users -> User Groups --> [group name]
+        
+        Afterwards can access through Admin Dashboard->Extensions->Modules->Redirects
+    </comment>
+
+
+    <file name="system/engine/controller.php">
+        <operation info="check for the URL_redirect table, create if needed">
+            <search position="after"><![CDATA[$this->registry = $registry;]]></search>
+            <add><![CDATA[
+        // Add table for LJK-URL-redirect mod
+        if($this->db->query("SHOW TABLES LIKE '" . DB_PREFIX . "url_redirect'")->num_rows == 0) {
+            $this->db->query("CREATE TABLE `oc_url_redirect` (
+                              `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+                              `old_url` varchar(255) DEFAULT NULL,
+                              `new_url` varchar(255) DEFAULT NULL,
+                              PRIMARY KEY (`id`),
+                              UNIQUE KEY `old_url` (`old_url`)
+                            ) ENGINE=InnoDB DEFAULT CHARSET=utf8  COMMENT='This table was created by the LJK-URL-Redirect VQMOD';
+                    ");
+        }
+        //!LJK-URL-redirect mod
+                ]]></add>
+        </operation>
+    </file>
+
+    <file name="catalog/controller/startup/seo_url.php">
+        <operation info="if SEO URL lookup fails, check to see if a redirect exists">
+            <search position="before"><![CDATA[error/not_found]]></search>
+            <add><![CDATA[
+            $request = ltrim($_SERVER['REDIRECT_URL'], '/');
+            $redirect_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "url_redirect WHERE old_url = '" . $this->db->escape($request) . "'");
+                if($redirect_query->num_rows)
+                {
+                    $new_page = $redirect_query->row['new_url'];
+                    Header('HTTP/1.1 301 Moved Permanently');
+                    Header('Location: /' . $new_page);
+                    exit();
+                }
+                ]]></add>
+        </operation>
+    </file>
+
+</modification>
